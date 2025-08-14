@@ -52,4 +52,4 @@ RUN php artisan config:cache \
 
 # Expose port & start Laravel
 EXPOSE 8080
-CMD php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
+CMD php artisan serve --host=0.0.0.0 --port=${PORT:-8080} --public
