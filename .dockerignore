@@ -23,6 +23,6 @@ storage/framework/views/*
 .env
 .env.local
 
-# MacOS / Windows
+# OS files
 .DS_Store
 Thumbs.db
