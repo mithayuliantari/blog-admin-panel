@@ -3,7 +3,8 @@ FROM php:8.2-cli
 
 # 2. Install dependencies untuk PHP dan Node
 RUN apt-get update && apt-get install -y \
-    git unzip libpng-dev libonig-dev libxml2-dev libzip-dev curl \
+    git unzip libpng-dev libonig-dev libxml2-dev libzip-dev \
+    libicu-dev pkg-config curl \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip intl
 
 # 3. Install Composer
