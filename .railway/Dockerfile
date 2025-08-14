@@ -19,19 +19,21 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www
 COPY . .
 
-# 5. Install PHP dependencies & build Node assets
+# 5. Hapus node_modules & lockfile Windows (fix EBADPLATFORM)
+RUN rm -rf node_modules package-lock.json
+
+# 6. Install PHP dependencies & build Node assets
 RUN composer install --no-dev --optimize-autoloader \
-    && rm -rf node_modules package-lock.json \
     && npm install --no-audit --no-fund \
     && npm run build
 
-# 6. Laravel cache & storage
+# 7. Laravel cache & storage
 RUN php artisan config:cache \
  && php artisan route:cache \
  && php artisan view:cache \
  && php artisan storage:link || true \
  && chown -R www-data:www-data storage bootstrap/cache
 
-# 7. Expose port & run Laravel
+# 8. Expose port & run Laravel
 EXPOSE 8080
 CMD php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
