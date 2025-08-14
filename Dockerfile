@@ -37,4 +37,4 @@ RUN php artisan config:cache \
 
 # Expose port
 EXPOSE 8080
-CMD php artisan serve --host=0.0.0.0 --port=${PORT:-8080} --public
+CMD php artisan serve --host=0.0.0.0 --port=${PORT:-8080} 
