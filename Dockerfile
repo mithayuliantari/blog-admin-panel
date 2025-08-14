@@ -1,33 +1,23 @@
-FROM php:8.2-cli
+FROM php:8.2-cli-bullseye
 
-# 1. Install system dependencies dulu
+# install deps tambahan tapi mbstring & intl sudah ada
 RUN apt-get update && apt-get install -y \
-    git curl unzip pkg-config libzip-dev libicu-dev zlib1g-dev \
-    libpng-dev libjpeg-dev libwebp-dev libfreetype6-dev \
-    libonig-dev \
+    git curl unzip zlib1g-dev libzip-dev libpng-dev libjpeg-dev libwebp-dev \
+    libfreetype6-dev libicu-dev nodejs npm \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# 2. Install PHP extensions (pakai docker-php-ext-install)
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
-    && docker-php-ext-install -j$(nproc) \
-       pdo_mysql mbstring exif pcntl bcmath gd zip intl opcache
-
-# 3. Composer
+# Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# 4. Workdir & copy project
 WORKDIR /var/www
 COPY . .
 
-# 5. Install PHP & Node dependencies
+# Composer + npm build
 RUN composer install --no-dev --optimize-autoloader \
-    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs \
-    && rm -rf node_modules package-lock.json \
     && npm install --no-audit --no-fund \
     && npm run build
 
-# 6. Laravel cache & storage
+# Laravel cache & storage
 RUN php artisan config:cache \
  && php artisan route:cache \
  && php artisan view:cache \
