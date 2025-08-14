@@ -1,49 +1,49 @@
-# 1. Base image Laravel + PHP
+# 1. Base image PHP (Debian)
 FROM php:8.2-cli
 
-# 2. Install PHP extensions & dependencies
+# 2. System deps untuk ekstensi PHP & build tools
 RUN apt-get update && apt-get install -y \
-    unzip \
-    git \
-    curl \
+    git curl unzip pkg-config \
     libzip-dev \
-    zip \
     libicu-dev \
-    pkg-config \
-    && docker-php-ext-configure intl \
-    && docker-php-ext-install intl zip pdo_mysql bcmath exif gd opcache pcntl
+    zlib1g-dev \
+    libpng-dev libjpeg-dev libwebp-dev libfreetype6-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+    && docker-php-ext-install -j$(nproc) \
+       pdo_mysql mbstring exif pcntl bcmath gd zip intl opcache
 
-# 3. Install Composer
+# 3. Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# 4. Set workdir
+# 4. Workdir & copy source
 WORKDIR /var/www
-
-# 5. Copy project files
 COPY . .
 
-# 6. Install PHP deps
-RUN composer install --no-dev --optimize-autoloader
+# 5. Install dependency PHP (production)
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
-# 7. Install Node.js & npm
+# 6. Install Node.js 20 (untuk build Vite/Filament)
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs
 
-# 8. Install JS deps & build Vite (Filament asset)
+# 7. Build asset Vite (fix EBADPLATFORM)
+#    - buang lockfile Windows & node_modules jika ikut ter-copy
+#    - install di Linux, lalu build
 RUN rm -rf node_modules package-lock.json \
     && npm install --no-audit --no-fund \
     && npm run build
 
-# 9. Laravel cache optimizations
+# 8. Optimisasi cache Laravel + storage link (tidak gagal bila sudah ada)
 RUN php artisan config:cache \
-    && php artisan route:cache \
-    && php artisan view:cache
+ && php artisan route:cache \
+ && php artisan view:cache \
+ && php artisan storage:link || true
 
-# 10. Permission
-RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+# 9. Permission untuk storage & cache
+RUN chown -R www-data:www-data storage bootstrap/cache
 
-# 11. Expose port 8080 (biar sesuai Railway public networking)
+# 10. Expose port 8080 (Railway public networking)
 EXPOSE 8080
 
-# 12. Start Laravel
-CMD php artisan serve --host=0.0.0.0 --port=8080
+# 11. Start Laravel sesuai PORT dari Railway (fallback ke 8080)
+CMD php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
