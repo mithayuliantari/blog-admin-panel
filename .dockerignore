@@ -5,6 +5,7 @@
 # Node
 node_modules
 package-lock.json
+npm-debug.log*
 
 # PHP / Composer
 vendor
@@ -26,3 +27,6 @@ storage/framework/views/*
 # OS files
 .DS_Store
 Thumbs.db
+
+# Optional: build output (jika tidak ingin ikut dicopy)
+public/build

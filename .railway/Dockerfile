@@ -1,15 +1,16 @@
 # -----------------------------
 # Stage 1: Node build
 # -----------------------------
-FROM node:20 AS node-builder
+FROM node:20-slim AS node-builder
 
 WORKDIR /app
 
 # Copy package.json & package-lock.json jika ada
 COPY package*.json ./
 
-# Install Node dependencies di Linux (paksa platform)
-RUN npm install --ignore-scripts --ignore-platform --legacy-peer-deps
+# Batasi concurrency npm + paksa install platform Linux
+RUN npm set maxsockets 1 \
+    && npm install --ignore-scripts --ignore-platform --legacy-peer-deps --unsafe-perm
 
 # Copy semua source code
 COPY . .
