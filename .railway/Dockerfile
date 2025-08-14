@@ -5,27 +5,27 @@ FROM node:20-slim AS node-builder
 
 WORKDIR /app
 
-# Copy package.json & package-lock.json jika ada
+# Copy package.json & package-lock.json
 COPY package*.json ./
 
-# Batasi concurrency npm + paksa install platform Linux
+# Batasi concurrency + ignore platform (Linux)
 RUN npm set maxsockets 1 \
     && npm install --ignore-scripts --ignore-platform --legacy-peer-deps --unsafe-perm
 
-# Copy semua source code
+# Copy semua source
 COPY . .
 
-# Build Vite
+# Build Vite / LightningCSS
 RUN npm run build
 
 # -----------------------------
 # Stage 2: PHP / Laravel
 # -----------------------------
-FROM php:8.2-cli
+FROM php:8.2-cli-bullseye
 
 WORKDIR /var/www
 
-# Install PHP system dependencies
+# Install PHP dependencies (prebuilt lebih ringan)
 RUN apt-get update && apt-get install -y \
     git curl unzip pkg-config libicu-dev libzip-dev zlib1g-dev \
     libpng-dev libjpeg-dev libwebp-dev libfreetype6-dev libonig-dev \
