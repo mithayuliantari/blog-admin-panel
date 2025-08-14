@@ -24,7 +24,7 @@ RUN composer install --no-dev --optimize-autoloader
 
 # 6. Hapus node_modules & package-lock Windows, install Node deps & build Vite
 RUN rm -rf node_modules package-lock.json \
-    && npm install --no-audit --no-fund \
+    && npm install --ignore-platform \
     && npm run build
 
 # 7. Laravel cache & storage
