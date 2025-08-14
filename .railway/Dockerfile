@@ -1,30 +1,26 @@
 # -----------------------------
-# Stage 1: Node build
+# Stage 1: Build Vite assets
 # -----------------------------
 FROM node:20-slim AS node-builder
 
 WORKDIR /app
 
-# Copy package.json & package-lock.json baru (jangan ikut lockfile Windows lama)
+# Copy package files dan install deps
 COPY package.json package-lock.json* ./
-
-# Install node deps di Linux (paksa platform)
 RUN npm install --ignore-scripts --ignore-platform --legacy-peer-deps --unsafe-perm
 
-# Copy semua source code
+# Copy seluruh source dan build
 COPY . .
-
-# Build Vite / LightningCSS
 RUN npm run build
 
 # -----------------------------
-# Stage 2: PHP / Laravel
+# Stage 2: Laravel app
 # -----------------------------
 FROM php:8.2-cli-bullseye
 
 WORKDIR /var/www
 
-# Install PHP dependencies
+# Install PHP extensions
 RUN apt-get update && apt-get install -y \
     git curl unzip pkg-config libicu-dev libzip-dev zlib1g-dev \
     libpng-dev libjpeg-dev libwebp-dev libfreetype6-dev libonig-dev \
@@ -34,22 +30,24 @@ RUN apt-get update && apt-get install -y \
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copy Laravel source (selalu termasuk folder public)
+# Copy Laravel source
 COPY . .
 
-# Copy hasil build Vite dari stage Node ke public/build
+# Copy hasil build Vite
 COPY --from=node-builder /app/dist ./public/build
 
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Laravel cache & storage
-RUN php artisan config:cache \
- && php artisan route:cache \
- && php artisan view:cache \
- && php artisan storage:link || true \
- && chown -R www-data:www-data storage bootstrap/cache
+# Set permission storage & cache
+RUN chown -R www-data:www-data storage bootstrap/cache
 
-# Expose port & jalankan Laravel di public
+# Jalankan Laravel ketika container start (cache dibuat setelah env dari Railway dimuat)
+CMD php artisan key:generate --force && \
+    php artisan config:cache && \
+    php artisan route:cache && \
+    php artisan view:cache && \
+    php artisan storage:link || true && \
+    php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
+
 EXPOSE 8080
-CMD php artisan serve --host=0.0.0.0 --port=${PORT:-8080} --public
