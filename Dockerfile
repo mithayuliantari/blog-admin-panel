@@ -1,36 +1,49 @@
-# 1. Base image
+# 1. Base image Laravel + PHP
 FROM php:8.2-cli
 
-# 2. Install dependencies untuk PHP dan Node
+# 2. Install PHP extensions & dependencies
 RUN apt-get update && apt-get install -y \
-    git unzip libpng-dev libonig-dev libxml2-dev libzip-dev \
-    libicu-dev pkg-config curl \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip intl
+    unzip \
+    git \
+    curl \
+    libzip-dev \
+    zip \
+    libicu-dev \
+    pkg-config \
+    && docker-php-ext-configure intl \
+    && docker-php-ext-install intl zip pdo_mysql bcmath exif gd opcache pcntl
 
 # 3. Install Composer
-COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# 4. Install Node.js & npm (versi LTS)
-RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
-    && apt-get install -y nodejs
-
-# 5. Copy project ke container
+# 4. Set workdir
 WORKDIR /var/www
+
+# 5. Copy project files
 COPY . .
 
-# 6. Install PHP dependencies
+# 6. Install PHP deps
 RUN composer install --no-dev --optimize-autoloader
 
-# 7. Install JS deps & build Vite (Filament asset) - fix npm Linux issue
-RUN rm -f package-lock.json \
-    && npm install --platform=linux --arch=x64 \
+# 7. Install Node.js & npm
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs
+
+# 8. Install JS deps & build Vite (Filament asset)
+RUN rm -rf node_modules package-lock.json \
+    && npm install --no-audit --no-fund \
     && npm run build
 
-# 8. Permission
+# 9. Laravel cache optimizations
+RUN php artisan config:cache \
+    && php artisan route:cache \
+    && php artisan view:cache
+
+# 10. Permission
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
-# 9. Expose port dari Railway (default 8080)
+# 11. Expose port 8080 (biar sesuai Railway public networking)
 EXPOSE 8080
 
-# 10. Start Laravel pakai port Railway
-CMD php artisan serve --host=0.0.0.0 --port=${PORT}
+# 12. Start Laravel
+CMD php artisan serve --host=0.0.0.0 --port=8080
