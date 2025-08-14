@@ -5,13 +5,13 @@ FROM node:20-slim AS node-builder
 
 WORKDIR /app
 
-# Copy package.json saja (jangan lockfile lama dari Windows)
-COPY package.json ./
+# Copy package.json & package-lock.json baru (jangan ikut lockfile Windows lama)
+COPY package.json package-lock.json* ./
 
 # Install node deps di Linux (paksa platform)
 RUN npm install --ignore-scripts --ignore-platform --legacy-peer-deps --unsafe-perm
 
-# Copy semua source
+# Copy semua source code
 COPY . .
 
 # Build Vite / LightningCSS
@@ -34,10 +34,10 @@ RUN apt-get update && apt-get install -y \
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copy Laravel source
+# Copy Laravel source (selalu termasuk folder public)
 COPY . .
 
-# Copy hasil build Vite dari stage Node
+# Copy hasil build Vite dari stage Node ke public/build
 COPY --from=node-builder /app/dist ./public/build
 
 # Install PHP dependencies
@@ -50,6 +50,6 @@ RUN php artisan config:cache \
  && php artisan storage:link || true \
  && chown -R www-data:www-data storage bootstrap/cache
 
-# Expose port & start Laravel
+# Expose port & jalankan Laravel di public
 EXPOSE 8080
 CMD php artisan serve --host=0.0.0.0 --port=${PORT:-8080} --public
