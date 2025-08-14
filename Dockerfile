@@ -21,8 +21,9 @@ COPY . .
 RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
 # 5. Install JS deps & build Vite (Filament asset)
-RUN npm ci || npm install \
- && npm run build
+RUN (npm ci || npm install) \
+    && npm run build
+
 
 # 6. Permission storage & cache
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
