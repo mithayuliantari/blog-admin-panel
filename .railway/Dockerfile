@@ -19,11 +19,11 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www
 COPY . .
 
-# 5. Hapus node_modules & lockfile Windows (fix EBADPLATFORM)
-RUN rm -rf node_modules package-lock.json
+# 5. Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader
 
-# 6. Install PHP dependencies & build Node assets
-RUN composer install --no-dev --optimize-autoloader \
+# 6. Hapus node_modules & package-lock Windows, install Node deps & build Vite
+RUN rm -rf node_modules package-lock.json \
     && npm install --no-audit --no-fund \
     && npm run build
 
