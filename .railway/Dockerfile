@@ -1,32 +1,37 @@
+# Base image PHP official
 FROM php:8.2-cli
 
-# 1. Install PHP deps + Oniguruma + build tools + Node.js
+# 1. Install system dependencies + Node.js
 RUN apt-get update && apt-get install -y \
-    unzip git libicu-dev libpng-dev libjpeg-dev libwebp-dev libonig-dev \
-    zlib1g-dev pkg-config curl \
+    git curl unzip pkg-config libicu-dev libzip-dev zlib1g-dev \
+    libpng-dev libjpeg-dev libwebp-dev libfreetype6-dev libonig-dev \
     && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
-    && docker-php-ext-install intl gd mbstring pdo_mysql zip bcmath pcntl opcache
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# 2. Composer
+# 2. Install PHP extensions
+RUN docker-php-ext-install intl zip pdo_mysql bcmath pcntl gd mbstring opcache
+
+# 3. Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# 3. Set workdir & copy project
+# 4. Set workdir & copy project
 WORKDIR /var/www
 COPY . .
 
-# 4. Install PHP deps + Node deps + Build
+# 5. Install PHP dependencies & build Node assets
 RUN composer install --no-dev --optimize-autoloader \
     && rm -rf node_modules package-lock.json \
     && npm install --no-audit --no-fund \
     && npm run build
 
-# 5. Laravel cache & storage
+# 6. Laravel cache & storage
 RUN php artisan config:cache \
  && php artisan route:cache \
  && php artisan view:cache \
  && php artisan storage:link || true \
  && chown -R www-data:www-data storage bootstrap/cache
 
+# 7. Expose port & run Laravel
 EXPOSE 8080
 CMD php artisan serve --host=0.0.0.0 --port=${PORT:-8080}

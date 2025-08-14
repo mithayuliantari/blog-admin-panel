@@ -8,4 +8,6 @@ storage/framework/sessions/*
 storage/framework/views/*
 .idea
 .vscode
+.env
 .env.local
+.DS_Store
