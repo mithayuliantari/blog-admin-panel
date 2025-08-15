@@ -17,15 +17,15 @@ RUN docker-php-ext-install intl zip pdo_mysql bcmath pcntl gd mbstring opcache
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copy project files
+# Copy project files (termasuk package-lock.json)
 COPY . .
 
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
 # Install Node dependencies & build assets
-RUN rm -rf node_modules package-lock.json \
-    && npm install --ignore-scripts --ignore-platform --legacy-peer-deps --unsafe-perm \
+RUN rm -rf node_modules \
+    && npm ci --legacy-peer-deps --unsafe-perm \
     && npm run build
 
 # Laravel cache & storage
