@@ -10,19 +10,14 @@ class EnsureUserIsAdmin
 {
     public function handle(Request $request, Closure $next): Response
     {
-        // Skip kalau halaman login atau proses login/logout
-        if ($request->is('admin/login') || $request->is('admin/logout')) {
+        // Kalau belum login, biarkan lewat (biar bisa ke /admin/login)
+        if (!$request->user()) {
             return $next($request);
         }
 
-        // Pastikan user sudah login
-        if (!auth()->check()) {
-            return redirect()->route('filament.admin.auth.login');
-        }
-
-        // Pastikan user adalah admin
-        if (!auth()->user()->is_admin) {
-            abort(403, 'Unauthorized.');
+        // Cek role atau kondisi admin
+        if ($request->user()->role !== 'admin') {
+            abort(403); // Forbidden
         }
 
         return $next($request);
