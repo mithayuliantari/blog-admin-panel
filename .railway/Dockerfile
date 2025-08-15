@@ -33,14 +33,6 @@ RUN php artisan storage:link || true \
  && chown -R www-data:www-data storage bootstrap/cache
 
 # Saat container start
-CMD php artisan config:clear && \
-    php artisan cache:clear && \
-    if [ -z "$APP_KEY" ]; then php artisan key:generate --force; fi && \
-    php artisan migrate --force && \
-    php artisan db:seed --force && \
-    php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan view:cache && \
-    php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
+CMD ["sh", "wait-for-db.sh"]
 
 EXPOSE 8080
