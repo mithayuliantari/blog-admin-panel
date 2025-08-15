@@ -32,10 +32,10 @@ COPY --from=node-builder /app/dist ./public/build
 RUN composer install --no-dev --optimize-autoloader
 RUN chown -R www-data:www-data storage bootstrap/cache
 
-# Jalankan Laravel dengan clear cache & generate key setiap start
+# Command saat container start
 CMD php artisan config:clear && \
     php artisan cache:clear && \
-    (php artisan key:generate --show || true) && \
+    if [ -z "$APP_KEY" ]; then php artisan key:generate --force; fi && \
     php artisan config:cache && \
     php artisan route:cache && \
     php artisan view:cache && \
