@@ -55,6 +55,6 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
                 EnsureUserIsAdmin::class, // Tetap di sini tapi sudah dimodif
-            ])->canAccess(fn ($user) => $user->is_admin);
+            ]);
     }
 }

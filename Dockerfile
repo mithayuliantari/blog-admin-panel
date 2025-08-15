@@ -1,9 +1,9 @@
-# Base PHP CLI
-FROM php:8.2-cli
+# Base PHP dengan Apache
+FROM php:8.2-apache
 
-WORKDIR /var/www
+WORKDIR /var/www/html
 
-# Install system dependencies + Node
+# Install dependencies
 RUN apt-get update && apt-get install -y \
     git curl unzip pkg-config libicu-dev libzip-dev zlib1g-dev \
     libpng-dev libjpeg-dev libwebp-dev libfreetype6-dev libonig-dev \
@@ -11,28 +11,44 @@ RUN apt-get update && apt-get install -y \
     && apt-get install -y nodejs \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Enable Apache modules
+RUN a2enmod rewrite headers
+
 # Install PHP extensions
 RUN docker-php-ext-install intl zip pdo_mysql bcmath pcntl gd mbstring opcache
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copy project
+# Copy project files
 COPY . .
 
-# Install PHP deps
+# Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Install Node deps & build
-RUN rm -rf node_modules package-lock.json \
-    && npm install --ignore-scripts --ignore-platform --legacy-peer-deps --unsafe-perm \
-    && npm run build
+# Install Node dependencies dan build assets
+RUN npm install && npm run build
 
-# Laravel cache & storage
-RUN php artisan storage:link || true \
- && chown -R www-data:www-data storage bootstrap/cache
+# Set permissions
+RUN chown -R www-data:www-data /var/www/html && \
+    chmod -R 755 storage bootstrap/cache
 
-# Saat container start
-CMD ["sh", "wait-for-db.sh"]
+# Apache config untuk Laravel
+RUN echo '<VirtualHost *:80>\n\
+    DocumentRoot /var/www/html/public\n\
+    <Directory /var/www/html/public>\n\
+        AllowOverride All\n\
+        Require all granted\n\
+    </Directory>\n\
+    Header always set X-Forwarded-Proto "https"\n\
+    Header always set X-Forwarded-Port "443"\n\
+</VirtualHost>' > /etc/apache2/sites-available/000-default.conf
 
-EXPOSE 8080
+# Copy dan set permissions untuk script
+COPY wait-for-db.sh /usr/local/bin/wait-for-db.sh
+RUN chmod +x /usr/local/bin/wait-for-db.sh
+
+EXPOSE 80
+
+# Gunakan wait-for-db.sh sebagai entrypoint
+CMD ["/usr/local/bin/wait-for-db.sh"]

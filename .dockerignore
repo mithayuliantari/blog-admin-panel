@@ -6,3 +6,6 @@ npm-debug.log
 .DS_Store
 storage/*.key
 public/storage
+*.log
+.env.backup
+Thumbs.db
