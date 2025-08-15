@@ -1,32 +1,8 @@
-# Git
-.git
-.gitignore
-
-# Node
 node_modules
-package-lock.json
-npm-debug.log*
-
-# PHP / Composer
 vendor
-
-# Laravel storage cache & logs
-storage/logs/*
-storage/framework/cache/*
-storage/framework/sessions/*
-storage/framework/views/*
-
-# IDE / editor files
-.idea
-.vscode
-
-# Environment
 .env
-.env.local
-
-# OS files
+.git
+npm-debug.log
 .DS_Store
-Thumbs.db
-
-# Optional: build output
-public/build
+storage/*.key
+public/storage

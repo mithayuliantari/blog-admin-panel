@@ -1,38 +1,43 @@
-# Base PHP CLI
-FROM php:8.2-cli
+# Stage 1: Build frontend assets
+FROM node:20 AS frontend-build
+
+WORKDIR /app
+
+# Copy package.json & lock file
+COPY package*.json ./
+
+# Install dependencies sesuai lock file
+RUN npm ci
+
+# Copy semua file frontend (Vite/Tailwind)
+COPY . .
+
+# Build CSS & JS
+RUN npm run build
+
+# Stage 2: PHP / Laravel
+FROM php:8.2-fpm
 
 WORKDIR /var/www
 
-# Install system dependencies + Node
-RUN apt-get update && apt-get install -y \
-    git curl unzip pkg-config libicu-dev libzip-dev zlib1g-dev \
-    libpng-dev libjpeg-dev libwebp-dev libfreetype6-dev libonig-dev \
-    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
-
 # Install PHP extensions
-RUN docker-php-ext-install intl zip pdo_mysql bcmath pcntl gd mbstring opcache
+RUN apt-get update && apt-get install -y \
+    git unzip libzip-dev libonig-dev libpng-dev libjpeg-dev libwebp-dev libfreetype6-dev \
+    && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip
 
-# Install Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
-# Copy project files (termasuk package-lock.json)
+# Copy Laravel project
 COPY . .
 
-# Install PHP dependencies
+# Copy hasil build frontend dari stage 1
+COPY --from=frontend-build /app/public/build ./public/build
+
+# Set permissions
+RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+
+# Install composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN composer install --no-dev --optimize-autoloader
 
-# Install Node dependencies & build assets
-RUN rm -rf node_modules \
-    && npm ci --legacy-peer-deps --unsafe-perm \
-    && npm run build
-
-# Laravel cache & storage
-RUN php artisan storage:link || true \
- && chown -R www-data:www-data storage bootstrap/cache
-
-# Jalankan script saat container start
-CMD ["sh", "wait-for-db.sh"]
-
-EXPOSE 8080
+# Expose port & entrypoint
+EXPOSE 8000
+CMD php artisan serve --host=0.0.0.0 --port=${PORT:-8000}
