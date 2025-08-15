@@ -54,7 +54,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-                EnsureUserIsAdmin::class, // Tetap di sini tapi sudah dimodif
+                // EnsureUserIsAdmin::class, // Tetap di sini tapi sudah dimodif
             ]);
     }
 }

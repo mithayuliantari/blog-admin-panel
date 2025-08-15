@@ -26,8 +26,14 @@ COPY . .
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
+# Setelah composer install, tambahkan:
+RUN php artisan filament:install --panels --quiet --no-interaction
+
 # Install Node dependencies dan build assets
 RUN npm install && npm run build
+
+# Publish Filament assets
+RUN php artisan filament:assets
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html && \
