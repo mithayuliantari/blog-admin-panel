@@ -1,8 +1,10 @@
 {
+  "$schema": "https://railway.app/railway.schema.json",
   "build": {
-    "dockerfilePath": "Dockerfile"
+    "builder": "DOCKERFILE",
+    "dockerfilePath": ".railway/Dockerfile"
   },
-  "start": {
-    "cmd": "php artisan serve --host=0.0.0.0 --port=$PORT"
+  "deploy": {
+    "startCommand": null
   }
 }

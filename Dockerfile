@@ -29,12 +29,18 @@ RUN rm -rf node_modules package-lock.json \
     && npm run build
 
 # Laravel cache & storage
-RUN php artisan config:cache \
- && php artisan route:cache \
- && php artisan view:cache \
- && php artisan storage:link || true \
+RUN php artisan storage:link || true \
  && chown -R www-data:www-data storage bootstrap/cache
 
-# Expose port
+# Saat container start
+CMD php artisan config:clear && \
+    php artisan cache:clear && \
+    if [ -z "$APP_KEY" ]; then php artisan key:generate --force; fi && \
+    php artisan migrate --force && \
+    php artisan db:seed --force && \
+    php artisan config:cache && \
+    php artisan route:cache && \
+    php artisan view:cache && \
+    php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
+
 EXPOSE 8080
-CMD php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
