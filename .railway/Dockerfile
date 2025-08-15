@@ -17,13 +17,13 @@ RUN docker-php-ext-install intl zip pdo_mysql bcmath pcntl gd mbstring opcache
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copy project
+# Copy project files
 COPY . .
 
-# Install PHP deps
+# Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Hapus node_modules & lock Windows, install Node deps & build Vite
+# Install Node dependencies & build assets
 RUN rm -rf node_modules package-lock.json \
     && npm install --ignore-scripts --ignore-platform --legacy-peer-deps --unsafe-perm \
     && npm run build
@@ -32,7 +32,7 @@ RUN rm -rf node_modules package-lock.json \
 RUN php artisan storage:link || true \
  && chown -R www-data:www-data storage bootstrap/cache
 
-# Saat container start
+# Jalankan script saat container start
 CMD ["sh", "wait-for-db.sh"]
 
 EXPOSE 8080

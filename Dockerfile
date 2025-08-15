@@ -23,7 +23,7 @@ COPY . .
 # Install PHP deps
 RUN composer install --no-dev --optimize-autoloader
 
-# Hapus node_modules & lock Windows, install Node deps & build Vite
+# Install Node deps & build
 RUN rm -rf node_modules package-lock.json \
     && npm install --ignore-scripts --ignore-platform --legacy-peer-deps --unsafe-perm \
     && npm run build

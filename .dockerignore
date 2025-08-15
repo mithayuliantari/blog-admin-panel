@@ -28,5 +28,5 @@ storage/framework/views/*
 .DS_Store
 Thumbs.db
 
-# Optional: build output (multi-stage build)
+# Optional: build output
 public/build
