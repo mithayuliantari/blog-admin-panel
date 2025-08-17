@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Resources\BlogResource\Pages;
+namespace App\Filament\Admin\Resources\BlogResource\Pages;
 
-use App\Filament\Resources\BlogResource;
+use App\Filament\Admin\Resources\BlogResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
@@ -15,5 +15,10 @@ class EditBlog extends EditRecord
         return [
             Actions\DeleteAction::make(),
         ];
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
     }
 }
