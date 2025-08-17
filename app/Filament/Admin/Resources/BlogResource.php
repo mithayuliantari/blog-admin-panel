@@ -64,7 +64,7 @@ class BlogResource extends Resource
             ->width(50),
 
             Tables\Columns\TextColumn::make('link')
-                ->url(fn ($record) => $record->link, true),
+                ->url(fn ($record) => $record->image_url),
 
             Tables\Columns\TextColumn::make('created_at')
                 ->dateTime()
