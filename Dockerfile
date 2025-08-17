@@ -33,7 +33,7 @@ RUN php artisan filament:install --panels --quiet --no-interaction
 RUN npm install && npm run build
 
 # Publish Filament assets
-RUN php artisan filament:assets
+RUN php artisan filament:assets --force
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html && \

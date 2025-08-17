@@ -61,10 +61,12 @@ class BlogResource extends Resource
             ->disk('public')
             ->label('Image')
             ->height(50)
-            ->width(50),
+            ->width(50)
+            ->url(fn ($record) => $record->image ? asset('storage/' . $record->image) : null),
 
-            Tables\Columns\TextColumn::make('link')
-                ->url(fn ($record) => $record->image_url),
+           Tables\Columns\TextColumn::make('link')
+                ->url(fn ($record) => $record->link, true) // true = buka di tab baru
+                ->label('Link'),
 
             Tables\Columns\TextColumn::make('created_at')
                 ->dateTime()
