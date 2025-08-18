@@ -30,7 +30,7 @@ Route::middleware('auth')->get('/make-admin/{email}', function ($email) {
     /** @var \App\Models\User $user */
     $user = Auth::user();
 
-    if (! $user()->isAdmin()) {
+    if (! $user->isAdmin()) {
         abort(403);
     }
 
@@ -50,4 +50,3 @@ Route::middleware('auth')->get('/make-admin/{email}', function ($email) {
         ]
     ]);
 });
-
