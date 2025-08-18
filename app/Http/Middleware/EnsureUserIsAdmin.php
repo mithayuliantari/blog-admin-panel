@@ -10,16 +10,14 @@ class EnsureUserIsAdmin
 {
     public function handle(Request $request, Closure $next): Response
     {
-        // Kalau belum login, biarkan lewat (biar bisa ke /admin/login)
+        // Izinkan akses ke halaman login
         if (!$request->user()) {
             return $next($request);
         }
 
-        // Cek role atau kondisi admin
-        if ($request->user()->role !== 'admin') {
-            abort(403); // Forbidden
+        if ($request->is('admin*') && $request->user()?->role !== 'admin') {
+            abort(403);
         }
-
         return $next($request);
     }
 }

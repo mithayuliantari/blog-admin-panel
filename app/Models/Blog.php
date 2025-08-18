@@ -17,9 +17,10 @@ class Blog extends Model
     ];
 
     // Accessor opsional: $blog->image_url
-    public function getImageUrlAttribute()
+    protected $appends = ['image_url'];
+
+    public function getImageUrlAttribute(): ?string
     {
-        if (! $this->image) return null;
-        return asset('storage/' . $this->image);
+        return $this->image ? asset('storage/' . $this->image) : null;
     }
 }

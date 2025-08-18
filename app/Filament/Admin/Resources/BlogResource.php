@@ -38,11 +38,12 @@ class BlogResource extends Resource
             FileUpload::make('image')
                 ->required()
                 ->image()
-                ->directory('blogs')       // simpan di storage/app/public/blogs
-                ->disk('public')           // simpan di disk public
+                ->maxSize(2048)
+                ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                ->directory('blogs')
+                ->disk('public')
                 ->preserveFilenames()
                 ->openable(true)
-                // ->nullable()
                 ->visibility('public'),
         ]);
     }
@@ -58,26 +59,26 @@ class BlogResource extends Resource
                 ->limit(50),
 
             Tables\Columns\ImageColumn::make('image')
-            ->disk('public')
-            ->label('Image')
-            ->height(50)
-            ->width(50)
-            ->url(fn ($record) => $record->image ? asset('storage/' . $record->image) : null),
+                ->disk('public')
+                ->label('Image')
+                ->height(50)
+                ->width(50)
+                ->url(fn($record) => $record->image ? asset('storage/' . $record->image) : null),
 
-           Tables\Columns\TextColumn::make('link')
-                ->url(fn ($record) => $record->link, true) // true = buka di tab baru
+            Tables\Columns\TextColumn::make('link')
+                ->url(fn($record) => $record->link, true) // true = buka di tab baru
                 ->label('Link'),
 
             Tables\Columns\TextColumn::make('created_at')
                 ->dateTime()
                 ->sortable(),
         ])
-        ->actions([
-            Tables\Actions\EditAction::make(),
-        ])
-        ->bulkActions([
-            Tables\Actions\DeleteBulkAction::make(),
-        ]);
+            ->actions([
+                Tables\Actions\EditAction::make(),
+            ])
+            ->bulkActions([
+                Tables\Actions\DeleteBulkAction::make(),
+            ]);
     }
 
     public static function getPages(): array

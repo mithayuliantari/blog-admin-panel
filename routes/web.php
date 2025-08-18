@@ -19,21 +19,28 @@ Route::get('/debug-auth', function () {
             'email' => $user->email,
             'name' => $user->name,
             'role' => $user->role ?? 'NO ROLE SET',
-            'can_access_admin' => $user->role === 'admin', 
+            'can_access_admin' => $user->role === 'admin',
         ] : null,
         'session_id' => session()->getId(),
         'csrf_token' => csrf_token(),
     ]);
 });
 
-Route::get('/make-admin/{email}', function ($email) {
-    $user = User::where('email', $email)->first();
+Route::middleware('auth')->get('/make-admin/{email}', function ($email) {
+    /** @var \App\Models\User $user */
+    $user = Auth::user();
 
-    if (!$user) {
+    if (! $user()->isAdmin()) {
+        abort(403);
+    }
+
+    $target = User::where('email', $email)->first();
+
+    if (! $target) {
         return response()->json(['error' => 'User not found'], 404);
     }
 
-    $user->update(['role' => 'admin']);
+    $target->update(['role' => 'admin']);
 
     return response()->json([
         'message' => 'User updated to admin',
