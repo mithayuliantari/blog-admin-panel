@@ -34,11 +34,23 @@ class User extends Authenticatable implements FilamentUser
         ];
     }
 
-
     public function canAccessPanel(Panel $panel): bool
     {
-        Log::info('Filament akses: ' . $this->email);
-        return true;
+        // Log untuk debugging
+        Log::info('Filament access check:', [
+            'user_email' => $this->email,
+            'user_role' => $this->role ?? 'null',
+            'panel_id' => $panel->getId()
+        ]);
+
+        // Hanya user dengan role 'admin' yang bisa akses
+        return $this->role === 'admin';
+    }
+
+    // Helper method untuk check admin
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
     }
 
 }
