@@ -13,7 +13,7 @@
             This is the API & Admin Panel for my portfolio blog.<br class="hidden sm:block">
             Please login to manage content.
         </p>
-        <a href="/dashboard/login"
+        <a href="/admin/login"
            class="inline-block px-5 sm:px-6 py-2 sm:py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-sm sm:text-base font-medium rounded hover:opacity-90 transition">
             Go to Admin Login
         </a>

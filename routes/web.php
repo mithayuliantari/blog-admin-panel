@@ -8,10 +8,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard/login/test', function () {
-    return 'Laravel aktif!';
-});
-
 
 // Debug route untuk cek user dan role
 Route::get('/debug-auth', function () {

@@ -42,7 +42,7 @@ class User extends Authenticatable implements FilamentUser
             'panel_id' => $panel->getId()
         ]);
 
-        return true;
+        return $this->role === 'admin' && $panel->getId() === 'admin';
     }
 
     // Helper method untuk check admin
