@@ -26,14 +26,14 @@ COPY . .
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Setelah composer install, tambahkan:
-RUN php artisan filament:install --panels --quiet --no-interaction
+# (DEBUG) Test Laravel command
+RUN php artisan --version || echo "DEBUG: artisan not working" # DEBUG
 
 # Install Node dependencies dan build assets
 RUN npm install && npm run build
 
 # Publish Filament assets
-RUN php artisan filament:assets --force
+RUN php artisan filament:assets --force || echo "DEBUG: filament assets gagal" # DEBUG
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html && \

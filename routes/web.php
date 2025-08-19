@@ -1,8 +1,8 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 
 Route::get('/', function () {
     return view('welcome');
@@ -16,41 +16,23 @@ Route::get('/debug-routes', function () {
             'uri' => $route->uri(),
             'name' => $route->getName(),
             'action' => $route->getActionName(),
-            'middleware' => $route->middleware(),
+            'methods' => $route->methods(),
         ];
     });
 });
 
 
-Route::middleware('auth')->get('/make-admin/{email}', function ($email) {
-    /** @var \App\Models\User $user */
-    $user = Auth::user();
-
-    if (! $user->isAdmin()) {
-        abort(403);
-    }
-
-    $target = User::where('email', $email)->first();
-
-    if (! $target) {
-        return response()->json(['error' => 'User not found'], 404);
-    }
-
-    $target->update(['role' => 'admin']);
-
-    return response()->json([
-        'message' => 'User updated to admin',
-        'user' => [
-            'email' => $user->email,
-            'role' => $user->role
-        ]
-    ]);
+Route::get('/ping', function () {
+    return response()->json(['status' => 'ok']);
 });
 
-Route::get('/hello', function () {
-    return response()->json([
-        'message' => 'Hello from Railway!',
-        'env' => app()->environment(),
-    ]);
+// Debug untuk bikin admin user
+Route::get('/make-admin/{email}', function ($email) {
+    $user = User::where('email', $email)->first();
+    if (! $user) {
+        return "User dengan email {$email} tidak ditemukan.";
+    }
+    $user->update(['is_admin' => true]);
+    return "User {$email} sudah dijadikan admin.";
 });
 
