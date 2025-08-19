@@ -14,7 +14,7 @@ class FilamentServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // ✅ Set custom path for Filament panel
-        Filament::setPath('dashboard');
+        // Filament::setPath('dashboard');
 
         // ⛔️ Block non-admin users from accessing Filament
 
