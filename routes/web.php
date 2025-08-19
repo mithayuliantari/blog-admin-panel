@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 | Web Routes
 |--------------------------------------------------------------------------
 */
+Route::get('/healthz', fn () => response()->json(['status' => 'ok']));
 
 // Halaman utama
 Route::get('/', function () {
@@ -52,4 +53,4 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureUserIsAdmin::class])
         });
 
         // Bisa ditambahkan route admin lain di sini
-    });
+});

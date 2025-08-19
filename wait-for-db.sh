@@ -6,12 +6,10 @@ chmod -R 755 /var/www/html/storage /var/www/html/bootstrap/cache
 
 echo "Waiting for database connection..."
 
-# Coba konek ke DB dulu (DEBUG)
-php artisan config:clear # DEBUG
-php artisan migrate:status || echo "DEBUG: migrate:status gagal" # DEBUG
+php artisan config:clear
 
 # Tunggu database siap dengan timeout
-RETRIES=30
+RETRIES=60
 until php artisan migrate:status > /dev/null 2>&1 || [ $RETRIES -eq 0 ]; do
   echo "Database not ready, waiting... ($RETRIES attempts left)" # DEBUG
   RETRIES=$((RETRIES-1))

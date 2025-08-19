@@ -30,14 +30,16 @@ RUN composer install --no-dev --optimize-autoloader
 RUN npm install && npm run build
 
 # Publish Filament assets
-RUN php artisan filament:assets --force || echo "DEBUG: filament assets gagal" # DEBUG
+RUN php artisan filament:assets --force || echo "DEBUG: filament assets gagal"
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html && \
     chmod -R 755 storage bootstrap/cache
 
+# ---------------------------
 # Apache config untuk Laravel
-RUN echo '<VirtualHost *:80>\n\
+# ---------------------------
+RUN echo '<VirtualHost *:${PORT}>\n\
     DocumentRoot /var/www/html/public\n\
     <Directory /var/www/html/public>\n\
         AllowOverride All\n\
@@ -47,11 +49,16 @@ RUN echo '<VirtualHost *:80>\n\
     Header always set X-Forwarded-Port "443"\n\
 </VirtualHost>' > /etc/apache2/sites-available/000-default.conf
 
+# Gunakan PORT dari Railway
+ENV PORT=8080
+RUN sed -i "s/Listen 80/Listen ${PORT}/g" /etc/apache2/ports.conf \
+    && sed -i "s/*:80/*:${PORT}/g" /etc/apache2/sites-available/000-default.conf
+
+EXPOSE ${PORT}
+
 # Copy dan set permissions untuk script
 COPY wait-for-db.sh /usr/local/bin/wait-for-db.sh
 RUN chmod +x /usr/local/bin/wait-for-db.sh
 
-EXPOSE 80
-
-# Gunakan wait-for-db.sh sebagai entrypoint
+# Entry point
 CMD ["/usr/local/bin/wait-for-db.sh"]
