@@ -6,7 +6,7 @@
   },
   "deploy": {
     "startCommand": null,
-    "healthcheckPath": "/admin/login",
+    "healthcheckPath": "/dashboard/login",
     "healthcheckTimeout": 300
   }
 }
