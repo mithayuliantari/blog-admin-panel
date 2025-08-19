@@ -26,9 +26,6 @@ COPY . .
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# (DEBUG) Test Laravel command
-RUN php artisan --version || echo "DEBUG: artisan not working" # DEBUG
-
 # Install Node dependencies dan build assets
 RUN npm install && npm run build
 
