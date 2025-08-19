@@ -32,6 +32,9 @@ RUN npm install && npm run build
 # Publish Filament assets
 RUN php artisan filament:assets --force || echo "DEBUG: filament assets gagal"
 
+# Setelah composer install dan artisan migrate
+RUN php artisan storage:link || true
+
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html && \
     chmod -R 755 storage bootstrap/cache
