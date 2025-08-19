@@ -12,9 +12,9 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         // Daftarkan provider hanya saat aplikasi berjalan di web atau console
-        if (! $this->app->runningInConsole()) {
-            $this->app->register(FilamentServiceProvider::class);
-        }
+        // if (! $this->app->runningInConsole()) {
+        //     $this->app->register(FilamentServiceProvider::class);
+        // }
     }
 
     public function boot(): void
