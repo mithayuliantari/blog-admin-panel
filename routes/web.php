@@ -10,29 +10,17 @@ Route::get('/', function () {
 
 
 // Debug route untuk cek user dan role
-Route::get('/debug-routes', function () {
-    return collect(Route::getRoutes())->map(function ($route) {
-        return [
-            'uri' => $route->uri(),
-            'name' => $route->getName(),
-            'action' => $route->getActionName(),
-            'methods' => $route->methods(),
-        ];
-    });
-});
+Route::get('/ping', fn() => [
+    'user' => Auth::user(),
+    'session' => session()->all(),
+]);
 
-
-Route::get('/ping', function () {
-    return response()->json(['status' => 'ok', 'time' => now()]);
-});
-
-// Debug untuk bikin admin user
-Route::get('/make-admin/{email}', function ($email) {
-    $user = User::where('email', $email)->first();
-    if (! $user) {
-        return "User dengan email {$email} tidak ditemukan.";
-    }
-    $user->update(['is_admin' => true]);
-    return "User {$email} sudah dijadikan admin.";
+// Kalau kamu mau bikin route admin manual di luar filament
+Route::middleware(['auth', \App\Http\Middleware\EnsureUserIsAdmin::class])
+    ->prefix('admin')
+    ->group(function () {
+        Route::get('/test', function () {
+            return "Halo Admin!";
+        });
 });
 
