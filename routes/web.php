@@ -23,7 +23,7 @@ Route::get('/debug-routes', function () {
 
 
 Route::get('/ping', function () {
-    return response()->json(['status' => 'ok']);
+    return response()->json(['status' => 'ok', 'time' => now()]);
 });
 
 // Debug untuk bikin admin user
