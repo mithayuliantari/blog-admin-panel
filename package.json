@@ -12,9 +12,9 @@
         "axios": "^1.11.0",
         "concurrently": "^9.0.1",
         "laravel-vite-plugin": "^2.0.0",
+        "lightningcss": "^1.30.1",
         "tailwindcss": "^4.1.11",
-        "vite": "^7.0.4",
-        "lightningcss": "^1.30.1"
+        "vite": "^7.0.4"
     },
     "name": "laravel-blog-api",
     "version": "1.0.0",
@@ -24,6 +24,7 @@
         "test": "tests"
     },
     "dependencies": {
+        "alpinejs": "^3.14.9",
         "ansi-regex": "^5.0.1",
         "ansi-styles": "^4.3.0",
         "asynckit": "^0.4.0",
