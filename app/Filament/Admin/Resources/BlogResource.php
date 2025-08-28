@@ -32,7 +32,7 @@ class BlogResource extends Resource
                 ->required()
                 ->maxLength(255)
                 ->live()
-                ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state))),
+                ->afterStateUpdated(fn($state, callable $set) => $set('slug', Str::slug($state))),
 
             TextInput::make('slug')
                 ->required()
@@ -52,15 +52,21 @@ class BlogResource extends Resource
 
             Select::make('category_id')
                 ->label('Category')
-                ->options(Category::query()->pluck('name','id'))
+                ->options(Category::query()->pluck('name', 'id'))
                 ->searchable()
                 ->preload()
                 ->nullable(),
 
+            TextInput::make('link')
+                ->label('External Link (opsional)')
+                ->url()
+                ->nullable()
+                ->maxLength(255),
+
             Select::make('tags')
                 ->label('Tags')
                 ->multiple()
-                ->options(Tag::query()->pluck('name','id'))
+                ->options(Tag::query()->pluck('name', 'id'))
                 ->searchable()
                 ->preload()
                 ->saveRelationshipsUsing(function ($component, $state, $record) {
@@ -79,12 +85,6 @@ class BlogResource extends Resource
                 ->preserveFilenames()
                 ->openable(true)
                 ->visibility('public'),
-
-            TextInput::make('link')
-                ->label('External Link (opsional)')
-                ->url()
-                ->nullable()
-                ->maxLength(255),
         ])->columns(2);
     }
 
@@ -99,8 +99,8 @@ class BlogResource extends Resource
                 Tables\Columns\TextColumn::make('tags.name')->badge()->separator(', ')->label('Tags'),
                 Tables\Columns\TextColumn::make('created_at')->dateTime()->sortable(),
             ])
-            ->actions([ Tables\Actions\EditAction::make() ])
-            ->bulkActions([ Tables\Actions\DeleteBulkAction::make() ]);
+            ->actions([Tables\Actions\EditAction::make()])
+            ->bulkActions([Tables\Actions\DeleteBulkAction::make()]);
     }
 
     public static function getPages(): array
